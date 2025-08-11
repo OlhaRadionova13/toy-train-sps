@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_Start" Id="{911134b4-3fe5-4ff9-b598-0b0f7a52db32}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Start
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	bSwitch AT%I* : BOOL; 
+	bLamp   AT%Q* : BOOL; 
+nCaseIndex : INT;
+	nGleis: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+bLamp := bSwitch;
+CASE nCaseIndex OF 
+0: 	
+	IF bSwitch = TRUE  THEN
+		nCaseIndex := 10; 
+	END_IF;; 
+	
+10: 
+	
+
+	IF bSwitch = TRUE  THEN
+		nGleis := TRUE;
+	
+	ELSE
+		nGleis := FALSE;
+	END_IF;; 
+	
+END_CASE
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

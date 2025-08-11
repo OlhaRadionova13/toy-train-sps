@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="RIFD" Id="{af624182-a431-41d4-96b9-3dc245934883}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM RIFD
+VAR
+	//bSensor AT%I* : BOOL;
+	bGleis1 AT%Q* : BOOL;
+	bGleis2 AT%Q* : BOOL;
+	
+	bGleis3 AT%Q* : BOOL;
+	bGleis4 AT%Q* : BOOL;
+	
+	//bSenor: BOOL;
+	
+	fbTonWeiche : TON;
+	
+	fbSerCom	: FB_SerialCom; 
+	nTransponderOld : INT;
+	
+	fbStart : FB_Start;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+fbStart();
+
+fbSerCom(nTransponderID=> );
+
+
+
+//bGleis1 := bSenor; 
+//IF bSensor = TRUE THEN
+	///bGleis1 := TRUE;
+	
+//END_IF
+
+IF NOT (fbSerCom.nTransponderID = nTransponderOld) THEN
+	CASE fbSerCom.nTransponderID OF
+		0:
+			;
+		1:
+			bGleis2 := TRUE;
+			fbTonWeiche.IN := TRUE;
+			nTransponderOld := fbSerCom.nTransponderID ;
+			
+		7:
+			bGleis1 := TRUE;
+			fbTonWeiche.IN := TRUE;
+			nTransponderOld := fbSerCom.nTransponderID ;
+			
+		255:
+			bGleis2 := TRUE;
+			bGleis3 := TRUE;
+			fbTonWeiche.IN := TRUE;
+			nTransponderOld := fbSerCom.nTransponderID ;
+				
+		8:
+			bGleis2 := TRUE;
+			bGleis4 := TRUE;
+			fbTonWeiche.IN := TRUE;
+			nTransponderOld := fbSerCom.nTransponderID ;
+		ELSE
+			;
+			
+	END_CASE
+ELSE
+	;
+END_IF
+
+
+// Weichenstrom abschalten
+
+fbTonWeiche(IN:=  , PT:= T#250MS , Q=> , ET=> );
+IF fbTonWeiche.Q  THEN
+ bGleis1 := bGleis2:= bGleis3 := bGleis4 := FALSE;
+ fbTonWeiche.IN := FALSE;
+END_IF
+
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_SerialCOM" Id="{c921df7b-3f51-4d12-a6c1-120b8e013bc4}" SpecialFunc="None">
+    <Declaration><![CDATA[// CoE-Settings EL6002
+// 0x8000:05 : TRUE
+// 0x8000:11 : 9600
+// 0x8000:15 : 8E1(4)
+
+FUNCTION_BLOCK FB_SerialCOM
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+		nTransponderID	: INT; // latest Transponder ID
+END_VAR
+VAR
+	//  instances
+	fbSerLineControl				: SerialLineControl;
+	fbRcvData						: ReceiveData;
+	// data structures
+	stComBufferIn, stComBufferOut	: ComBuffer;
+	EL6InData AT%I*					: EL6inData22B;
+	EL6OutData AT%Q*				: EL6outData22B;
+
+	// ReceiveData
+	nPrefix		: BYTE := 2; // fixed defined prefix char
+	nSuffix		: BYTE := 0; // no suffix char
+	nRecvData	: ARRAY[1..4] OF BYTE; // contains prefix, data and crc
+
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// SerialLine DataControl
+fbSerLineControl(
+	Mode:= Seriallinemode_EL6_22B, 
+	pComIn:= ADR(EL6InData), 
+	pComOut:= ADR(EL6OutData), 
+	SizeComIn:= SIZEOF(EL6InData), 
+	Error=> , 
+	ErrorID=> , 
+	TxBuffer:= stComBufferOut, 
+	RxBuffer:= stComBufferIn
+	);
+
+// Receive Data Transponder
+// Prefis := 02
+// Length Prefix := 1 Byte
+// Data = 2 Byte
+// CRC = 1 Byte
+
+// data receiver	
+fbRcvData(
+	pPrefix:= ADR(nPrefix), 
+	LenPrefix:= 1, // length prefix = 1 Byte
+	pSuffix:= ADR(nSuffix), 
+	LenSuffix:= 0,  // no suffix char available
+	pReceiveData:= ADR(nRecvData), // data array for received data 
+	SizeReceiveData:= SIZEOF(nRecvData), 
+	Timeout:= T#3S, 
+	Reset:= , 
+	DataReceived=> , 
+	busy=> , 
+	Error=> , 
+	RxTimeout=> , 
+	LenReceiveData=> , 
+	RXbuffer:= stComBufferIn);
+
+nTransponderID := BYTE_TO_INT(nRecvData[3]); // extract latest Transponder ID from Serial Port]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

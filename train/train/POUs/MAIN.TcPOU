@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="MAIN" Id="{351664dc-9997-451d-86c7-99a132d814a0}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+RIFD();
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
